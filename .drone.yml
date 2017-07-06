@@ -19,7 +19,7 @@ pipeline:
     commands:
       - make build IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
       
-  spectests:
+  test:
     when:
       event: push
     image: 1and1internet/ubuntu-16-rspec
