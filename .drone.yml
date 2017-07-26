@@ -1,3 +1,4 @@
+---
 pipeline:
 
   pull:
@@ -8,17 +9,18 @@ pipeline:
       - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker --config /secrets/ pull fhautomateddev/library-ci-tools
+      - docker --config /secrets/ pull 1and1internet/template-library-tools
+      - docker --config /secrets/ pull 1and1internet/ubuntu-16-rspec
 
   build:
     when:
       event: push
-    image: fhautomateddev/library-ci-tools
+    image: 1and1internet/template-library-tools
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - make build IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
-      
+      - make --environment-overrides build IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
+
   test:
     when:
       event: push
@@ -26,15 +28,25 @@ pipeline:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - make do-test IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
-      
+      - make --environment-overrides do-test IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
+
   publish:
     when:
       event: push
-    image: fhautomateddev/library-ci-tools
+    image: 1and1internet/template-library-tools
     volumes:
       - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
-      - /shared_storage:/tmp/image-comparison
     commands:
-     - python3 -u /scripts/images/publish.py
+      - python3 -u /scripts/images/publish.py
+
+  clean:
+    when:
+      event: push
+      status: [success, failure]
+    image: 1and1internet/template-library-tools
+    volumes:
+      - /secrets:/secrets
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - make --environment-overrides clean IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
