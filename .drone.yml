@@ -12,13 +12,6 @@ pipeline:
       - docker --config /secrets/ pull 1and1internet/template-library-tools
       - docker --config /secrets/ pull 1and1internet/ubuntu-16-rspec
 
-  show-env-for-testing:
-    when:
-      event: push
-    image: 1and1internet/template-library-tools
-    commands:
-      - env
-
   build:
     when:
       event: push
