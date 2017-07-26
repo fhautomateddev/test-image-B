@@ -37,6 +37,7 @@ pipeline:
     volumes:
       - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
+      - /shared_storage:/tmp/image-comparison
     commands:
       - python3 -u /scripts/images/publish.py
 
