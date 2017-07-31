@@ -10,7 +10,7 @@ pipeline:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
       - docker --config /secrets/ pull fhautomateddev/template-library-tools
-      - docker --config /secrets/ pull fhautomateddev/ubuntu-16-rspec
+      - docker --config /secrets/ pull 1and1internet/ubuntu-16-rspec
 
   build:
     when:
@@ -24,7 +24,7 @@ pipeline:
   test:
     when:
       event: push
-    image: fhautomateddev/ubuntu-16-rspec
+    image: 1and1internet/ubuntu-16-rspec
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
