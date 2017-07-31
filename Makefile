@@ -51,14 +51,10 @@ run-rspec:
 
 clean:
 	##
-	## Cleanup stage .. most errors during this stage are ok, ignore them
+	## Removing docker images .. most errors during this stage are ok, ignore them
 	##
-	## Attempting to remove image ${IMAGE_NAME}
-	-docker rmi ${IMAGE_NAME}
-	## Attempting to remove image(s) ${BASE_IMAGE}
-	-docker rmi ${BASE_IMAGE}
-	## Attempting to remove all untagged images
-	##  (they are sometimes generated and by definition aren't in use)
-	-docker rmi $(shell docker images | grep "<none>" | awk "{print \$$3}")
+	for IMAGE in ${BASE_IMAGE} ${RSPEC_IMAGE}; \
+		do docker pull $${IMAGE}; \
+	done
 
 .PHONY: all pull build test do-test checkout-drone-tests run-rspec clean
