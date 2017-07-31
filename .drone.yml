@@ -9,13 +9,13 @@ pipeline:
       - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker --config /secrets/ pull 1and1internet/template-library-tools
-      - docker --config /secrets/ pull 1and1internet/ubuntu-16-rspec
+      - docker --config /secrets/ pull fhautomateddev/template-library-tools
+      - docker --config /secrets/ pull fhautomateddev/ubuntu-16-rspec
 
   build:
     when:
       event: push
-    image: 1and1internet/template-library-tools
+    image: fhautomateddev/template-library-tools
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
@@ -24,7 +24,7 @@ pipeline:
   test:
     when:
       event: push
-    image: 1and1internet/ubuntu-16-rspec
+    image: fhautomateddev/ubuntu-16-rspec
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
@@ -33,21 +33,23 @@ pipeline:
   publish:
     when:
       event: push
-    image: 1and1internet/template-library-tools
+    image: fhautomateddev/template-library-tools
     volumes:
-      - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
-      - /shared_storage:/tmp/image-comparison
+      - /shared_storage:/shared_storage
+      - /secrets:/secrets
     commands:
-      - python3 -u /scripts/images/publish.py
+      - images_tool -s /secrets/ -w /shared_storage --image-name build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/} --publish-image
 
   clean:
     when:
       event: push
       status: [success, failure]
-    image: 1and1internet/template-library-tools
+    image: fhautomateddev/template-library-tools
     volumes:
-      - /secrets:/secrets
       - /var/run/docker.sock:/var/run/docker.sock
+      - /shared_storage:/shared_storage
+      - /secrets:/secrets
     commands:
+      - images_tool -s /secrets/ -w /shared_storage --image-name build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/} --clean-workspace
       - make --environment-overrides clean IMAGE_NAME=build-${CI_REPO#*/}-${CI_BUILD_NUMBER}/${CI_REPO#*/}
